@@ -16,7 +16,7 @@ Minimum **2** fixed bugs. But more is better!
 
 ## Run It
 
-Clone first: git clone https://codeberg.org/gorreEth/node-test-assignment.git
+Clone first: git clone https://github.com/veablicerBiz/node-test-assignment.git
 cd into cloned repo
 
 npm run start
