@@ -23,8 +23,8 @@ npm run start
 
 **OR**
 
-npm install
-node assignment.js
+- npm install
+- node assignment.js
 
 Arrow keys navigate, Enter selects, Q quits.
 
