@@ -45,22 +45,16 @@ const VIEWS = {
 
 let activeView = VIEWS.MAIN;
 let cursor = { main: 0, strategy: 0, asset: 0, size: 0 };
-let pressCount = 0;
-let lastPressTime = 0;
+
+// FIXED: issue #4 — removed faulty pressCount throttle that dropped presses 4-6
+// FIXED: issues #1, #2 — arrow and Enter keys now process every press without random drops
+// FIXED: issue #5 — Q key to exit no longer gets ignored
 
 readline.emitKeypressEvents(process.stdin);
 if (process.stdin.isTTY) process.stdin.setRawMode(true);
 
 process.stdin.on('keypress', (ch, key) => {
   if (!key) return;
-
-  pressCount++;
-
-  if (pressCount > 3 && pressCount < 7) return;
-
-  const now = Date.now();
-  if (now - lastPressTime < 150) return;
-  lastPressTime = now;
 
   if (key.name === 'q' && !key.ctrl) {
     engine.stop();
@@ -69,10 +63,10 @@ process.stdin.on('keypress', (ch, key) => {
 
   if (activeView === VIEWS.MAIN) {
     if (key.name === 'up') {
-      cursor.main = (cursor.main - 1 + 5) % 5;
+      cursor.main = (cursor.main - 1 + MENUS.main.length) % MENUS.main.length;
       drawMain();
     } else if (key.name === 'down') {
-      cursor.main = (cursor.main + 1) % 5;
+      cursor.main = (cursor.main + 1) % MENUS.main.length;
       drawMain();
     } else if (key.name === 'return') {
       if (cursor.main === 0) {
@@ -99,13 +93,13 @@ process.stdin.on('keypress', (ch, key) => {
   } else if (activeView === VIEWS.STRATEGY) {
     if (key.name === 'escape') {
       activeView = VIEWS.MAIN;
-      cursor.main = 0;
+      // FIXED: issue #3 — preserve cursor.main so highlight matches what user came from
       drawMain();
     } else if (key.name === 'up') {
-      cursor.strategy = (cursor.strategy - 1 + 4) % 4;
+      cursor.strategy = (cursor.strategy - 1 + MENUS.strategy.length) % MENUS.strategy.length;
       drawStrategy();
     } else if (key.name === 'down') {
-      cursor.strategy = (cursor.strategy + 1) % 4;
+      cursor.strategy = (cursor.strategy + 1) % MENUS.strategy.length;
       drawStrategy();
     } else if (key.name === 'return') {
       cursor.asset = 0;
@@ -117,10 +111,10 @@ process.stdin.on('keypress', (ch, key) => {
       activeView = VIEWS.STRATEGY;
       drawStrategy();
     } else if (key.name === 'up') {
-      cursor.asset = (cursor.asset - 1 + 10) % 10;
+      cursor.asset = (cursor.asset - 1 + MENUS.asset.length) % MENUS.asset.length;
       drawAsset();
     } else if (key.name === 'down') {
-      cursor.asset = (cursor.asset + 1) % 10;
+      cursor.asset = (cursor.asset + 1) % MENUS.asset.length;
       drawAsset();
     } else if (key.name === 'return') {
       cursor.size = 0;
@@ -132,10 +126,10 @@ process.stdin.on('keypress', (ch, key) => {
       activeView = VIEWS.ASSET;
       drawAsset();
     } else if (key.name === 'up') {
-      cursor.size = (cursor.size - 1 + 10) % 10;
+      cursor.size = (cursor.size - 1 + MENUS.size.length) % MENUS.size.length;
       drawSize();
     } else if (key.name === 'down') {
-      cursor.size = (cursor.size + 1) % 10;
+      cursor.size = (cursor.size + 1) % MENUS.size.length;
       drawSize();
     } else if (key.name === 'return') {
       activeView = VIEWS.VERIFY;
@@ -157,7 +151,7 @@ process.stdin.on('keypress', (ch, key) => {
   } else if (activeView === VIEWS.SETTINGS || activeView === VIEWS.HELP || activeView === VIEWS.ABOUT) {
     if (key.name === 'escape') {
       activeView = VIEWS.MAIN;
-      cursor.main = 0;
+      // FIXED: issue #3 — preserve cursor.main so highlight matches what user came from
       drawMain();
     }
   }
